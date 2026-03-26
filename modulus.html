@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modulus – Case Study & Code | [Your Name]</title>
+    <meta name="description" content="Images, notes, and code snippets from my Modulus internship work." />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+    <!-- Use the same stylesheet as portfolio.html -->
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style_extra.css" />
+
+
+</head>
+
+<body>
+    <header>
+        <div class="container nav">
+            <nav aria-label="Primary">
+                <a href="portfolio.html#projects">Projects</a>
+                <a href="portfolio.html#skills">Skills</a>
+                <a href="portfolio.html#about">About</a>
+                <a href="portfolio.html#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="crumbs"><a href="portfolio.html">← Back to portfolio</a></p>
+            <h1>Modulus</h1>
+            <p>
+                Notes, screenshots, and small snippets from my internship at Happy Volcano. 
+               <p><strong> Focus:</strong> prototyping, bug fixing and feature developement in production. </p>
+               <p><strong> Duration: </strong> three months.
+            </p>
+            <div class="cta">
+                <a class="btn" href="https://store.steampowered.com/app/2779120/Modulus" target="_blank"
+                    rel="noopener noreferrer">Open on Steam</a>
+                <a class="btn" href="Recommendation_Letter.pdf" target="_blank" rel="noopener noreferrer">Letter of
+                    Recommendation</a>
+            </div>
+        </section>
+
+        <!-- SECTION 1: Image + text/code side-by-side -->
+        <section class="case" id="feature-1">
+            <h2>Prototype system – overview</h2>
+            <div class="split">
+                <figure class="card">
+                    <img src="Worldmap.gif" alt="Modulus worldmap prototype" style="width:100%; border-radius:12px;">
+                    <figcaption>Prototype of the Modulus worldmap.</figcaption>
+        
+                    <!-- New code snippet under the GIF -->
+                    <pre class="card"><code>// Example snippet
+        public void LoadExistingLines()
+        {
+            var resources = _worldMap.GetImportedResources(_cityData.GuidStr);
+            Transform endPointTrans = _cityTransform;
+        
+            for (int j = 0; j < resources.Count; ++j) 
+            { 
+                for (int k=0; k < resources[j].ResourceTypes.Count; ++k) 
+                { 
+                    var exportCityUI=_worldMapUI.GetCityUI(resources[j].FromCityGuid); 
+                    Transform startPointTrans=exportCityUI.CityTransform;
+            
+                    var button=exportCityUI.GetButton(resources[j].ResourceTypes[k]); 
+                    if (button) button.IsExporting=true;
+                    
+                    _exportLineVisuals.CreateLine(startPointTrans, button, resources[j].FromCityGuid);
+                    _exportLineVisuals.PlaceLineEndpoint(endPointTrans, _cityData.GuidStr); 
+                } 
+            } 
+        }
+        </code></pre>
+                </figure>
+        
+                <div class="card">
+                    <p><strong>Time:</strong> a week</p>
+        
+                    <p><strong>Save System:</strong>
+                        Before adding world map features, we built a saving system using Scriptable Objects. However, since SOs
+                        reset when
+                        loading unrelated scenes, we created a persistent manager to keep key SOs alive throughout the game.</p>
+        
+                    <p><strong>Unlocking Levels:</strong>
+                        Implemented easily with the new saving system by storing a simple Boolean to check if a level should
+                        unlock when an
+                        event triggers.</p>
+        
+                    <p><strong>Rendering Arcs:</strong>
+                        To visually connect levels, we used Unity’s Line Renderer and modified it to draw arcs using three
+                        transforms — start,
+                        end, and center.</p>
+        
+                    <p><strong>Placing Arcs:</strong>
+                        Arcs are activated via a button in the hover info menu. After adjusting the menu logic, arcs now start
+                        at one level icon
+                        and follow the mouse until another level is selected.</p>
+        
+                    <p><strong>Saving Arc Data:</strong>
+                        Arc information is saved per level, ensuring lines reload correctly when returning to the world map.</p>
+        
+                    <p><strong>Editing Arcs:</strong>
+                        Arcs can be changed or removed entirely.</p>
+        
+                    <p><strong>Overlapping Data:</strong>
+                        When multiple arcs share the same start and end points, they merge into one arc with multiple icons.
+                        Code was simplified
+                        to better track linked data, including handling removal of individual connections.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 2: Code + image reversed -->
+<section class="case" id="dual-images-reversed">
+    <h2>Warehouse Prototypes</h2>
+    <div class="split" style="grid-template-columns: 1fr 1.2fr;">
+
+        <!-- Left side: text and code -->
+        <div class="card">
+
+            <p><strong>Time:</strong> a week</p>
+
+            <p>I had to make a prototype of a warehouse which acts as an operator in the game, together with another developer.=
+            The operator stores modules in a container; the main challenge was linking 3D models as icons on a world-space canvas
+            positioned relative to the building’s size.</p>
+            
+            <p><strong>Buildings:</strong></pp>
+            
+            <p>Buildings draw modules from nearby warehouses via a singleton manager (implemented as a Scriptable Object). Warehouses
+            register themselves for easy access.</p>
+            
+            <p>I assisted with building placement, using my experience with operators and the diorama tool.</p>
+            
+            <p>I handled most of the visuals, including icons with progress bars showing required modules and retrieval time.</p>
+            
+            <p>To improve feedback, I added drones to visually represent module transport from warehouses.</p>
+        </div>
+
+        <!-- Right side: two images stacked -->
+        <div class="card" style="display:flex; flex-direction:column; gap:16px;">
+            <figure>
+                <img src="WarehouseVers1.gif" alt="Old tool layout" style="width:100%; border-radius:12px;">
+                <figcaption>First version of the warehouse.</figcaption>
+            </figure>
+            <figure>
+                <img src="WarehouseVers2.gif" alt="New tool layout" style="width:100%; border-radius:12px;">
+                <figcaption>Second version of the warehouse.</figcaption>
+            </figure>
+        </div>
+
+    </div>
+</section>
+
+<section class="case" id="gallery">
+    <h2>Gallery</h2>
+
+    <div class="gallery-wrapper">
+        <button class="gallery-arrow left" aria-label="Scroll left">‹</button>
+
+        <div class="gallery-scroll">
+            <figure class="card"><img src="SplitterTunnel.gif" alt="Gallery 1">
+                <figcaption>First operators I made in production fase.</figcaption>
+            </figure>
+            <figure class="card"><img src="ConveyorCross.gif" alt="Gallery 2">
+                <figcaption>System to switch models at a conveyor cross section.</figcaption>
+            </figure>
+            <figure class="card"><img src="ConveyorProd.gif" alt="Gallery 3">
+                <figcaption>Conveyor system in production fase.</figcaption>
+            </figure>
+            <figure class="card"><img src="VisualBugs.gif" alt="Gallery 3">
+                <figcaption>Some visual bugs I fixed.</figcaption>
+            </figure>
+        </div>
+
+        <button class="gallery-arrow right" aria-label="Scroll right">›</button>
+    </div>
+</section>
+
+
+
+    </main>
+
+ <footer class="container">
+    <small>© <span id="y"></span> Myrthe Lodewyckx. Built with plain HTML/CSS. Fast by default.</small>
+</footer>
+
+<script>
+    // year
+    document.getElementById('y').textContent = new Date().getFullYear();
+    // mobile menu
+    const btn = document.querySelector('.menu-btn');
+    const mobile = document.getElementById('mobileMenu');
+    btn.addEventListener('click', () => {
+        const open = mobile.style.display === 'block';
+        mobile.style.display = open ? 'none' : 'block';
+        btn.setAttribute('aria-expanded', String(!open));
+    });
+</script>
+
+<script>
+    const scrollContainer = document.querySelector('.gallery-scroll');
+    const leftBtn = document.querySelector('.gallery-arrow.left');
+    const rightBtn = document.querySelector('.gallery-arrow.right');
+
+    leftBtn.addEventListener('click', () => {
+        scrollContainer.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+
+    rightBtn.addEventListener('click', () => {
+        scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+</script>
+
+</body>
+
+</html>

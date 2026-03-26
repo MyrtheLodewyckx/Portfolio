@@ -1,0 +1,76 @@
+    :root{
+      --bg: #0b0c10;
+      --muted: #1f2833;
+      --fg: #c5c6c7;
+      --hi: #fd53a3;
+      --hi-2: #d8ba57;
+      --card: #121317;
+      --border: #2b2f36;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg: #ffffff;
+        --muted: #f4f6f8;
+        --fg: #243041;
+        --hi: #0077ff;
+        --hi-2: #4e7eff;
+        --card: #ffffff;
+        --border: #e3e8ef;
+      }
+      .glow{box-shadow: 0 0 0 4px rgba(0,119,255,.08);} 
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+    a{color:var(--hi);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1000px;margin:0 auto;padding:0 20px}
+    header{position:sticky;top:0;backdrop-filter:saturate(180%) blur(10px);background:color-mix(in srgb, var(--bg) 85%, transparent);border-bottom:1px solid var(--border);z-index:50}
+    .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .brand{display:flex;gap:.75rem;align-items:center;font-weight:700}
+    .brand .dot{width:10px;height:10px;border-radius:999px;background:var(--hi)}
+    nav a{margin-left:18px}
+    .menu-btn{display:none;background:transparent;border:1px solid var(--border);padding:.4rem .6rem;border-radius:.6rem;color:var(--fg)}
+    @media (max-width:720px){
+      nav{display:none}
+      .menu-btn{display:block}
+      .mobile{display:none;position:absolute;inset:64px 0 auto 0;background:var(--bg);border-bottom:1px solid var(--border)}
+      .mobile a{display:block;padding:14px 20px;border-top:1px solid var(--border)}
+    }
+    .hero{padding:80px 0}
+    .hero h1{font-size:clamp(28px, 4vw, 44px);line-height:1.1;margin:0 0 10px}
+    .hero p{max-width:720px;margin:0 0 20px}
+    .badge{display:inline-flex;gap:.5rem;align-items:center;background:var(--muted);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:.9rem}
+    .cta{display:flex;gap:12px;margin-top:20px}
+    .btn{display:inline-flex;align-items:center;gap:.6rem;padding:10px 14px;border-radius:.8rem;border:1px solid var(--border);background:var(--card);color:var(--fg);text-decoration:none}
+    .btn.primary{background:var(--hi);color:black;font-weight:600;border-color:transparent}
+    .grid{display:grid;gap:16px}
+    .two{grid-template-columns:repeat(2,1fr)}
+    .three{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:900px){.three{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:640px){.two,.three{grid-template-columns:1fr}}
+    section{padding:40px 0;border-top:1px solid var(--border)}
+    h2{font-size:clamp(20px, 2.8vw, 28px);margin:0 0 12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+    .card:hover{border-color:var(--hi-2)}
+    .project{display:flex;flex-direction:column;gap:10px}
+    .project .meta{font-size:.9rem;opacity:.8}
+    .tags{display:flex;flex-wrap:wrap;gap:8px}
+    .tag{font-size:.85rem;background:var(--muted);border:1px solid var(--border);padding:4px 8px;border-radius:999px}
+    .skills ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:10px}
+    .skills li{padding:8px 10px;border-radius:10px;background:var(--muted);border:1px solid var(--border)}
+    footer{padding:40px 0;border-top:1px solid var(--border);opacity:.8}
+    .glow{box-shadow:0 0 0 4px rgba(102,252,241,.08)}
+
+    /* Make the whole card clickable without breaking the grid */
+.project { position: relative; }
+.project .stretched-link {
+  position: absolute;
+  inset: 0;              /* cover the whole card */
+  z-index: 1;            /* sits under real links we want clickable */
+  border-radius: 16px;   /* match your .card radius */
+}
+.project a:not(.stretched-link) {
+  position: relative;    /* lift normal links above the overlay */
+  z-index: 2;
+}

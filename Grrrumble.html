@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grrrumble - Group project</title>
+    <meta name="description" content="Images, notes, and code snippets from my group project, Grrrumble!" />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+    <!-- Use the same stylesheet as portfolio.html -->
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style_extra.css" />
+</head>
+
+<body>
+    <header>
+        <div class="container nav">
+            <nav aria-label="Primary">
+                <a href="portfolio.html#projects">Projects</a>
+                <a href="portfolio.html#skills">Skills</a>
+                <a href="portfolio.html#about">About</a>
+                <a href="portfolio.html#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="crumbs"><a href="portfolio.html">← Back to portfolio</a></p>
+            <h1>Grrrumble!</h1>
+            <p>
+                A quick overview of the programming side of the Grrrumble production process.
+               <p><strong> Focus:</strong> Making a full gameloop from start to finish. </p>
+               <p><strong> Duration: </strong> three months.
+            </p>
+            <div class="cta">
+                <a class="btn" href="https://ren47.itch.io/grrrumble" target="_blank"
+                    rel="noopener noreferrer">Read more on Itch.io</a>
+                <a class="btn" href="https://github.com/MyrtheLodewyckx/Grrrumble" target="_blank" rel="noopener noreferrer">Open on Github</a>
+            </div>
+        </section>
+
+<section class="case" id="feature-1">
+    <h2>The cart - physics</h2>
+
+    <!-- Row 1: image + text side by side -->
+    <div class="row">
+        <!-- Image -->
+        <div class="card" style="display:flex; flex-direction:column; gap:12px; flex:1; max-width: 300px;">
+            <figure style="margin:0;">
+                <img src="Grrrumble_ToppleCart.gif" alt="Cart toppling part 1" style="width:100%; border-radius:12px;">
+                <figcaption>Topple physics result of code snippet.</figcaption>
+            </figure>
+        
+            <figure style="margin:0;">
+                <img src="Grrrumble_Cart.gif" alt="Cart movements" style="width:100%; border-radius:12px;">
+                <figcaption>Cart movement as described by text.</figcaption>
+            </figure>
+        </div>
+
+        <!-- Text -->
+        <div class="card" style="flex:1; font-size: small;">
+            <p><strong>Time:</strong> a week</p>
+
+            <p><strong>Cart physics:</strong>
+
+                <p>
+                We wanted everything in the game to feel throwable and a little bit wonky, with that playful kind of chaos where objects
+                bounce, roll, and sometimes get in your way. The difficult part was figuring out how these objects should interact once
+                they all had their own physics. </p>
+
+                <p>
+                At first, the shopping cart was just a component of the grandma character. That worked fine for basic movement, but it
+                meant the cart could not have its own physics since it was tied directly to her. We needed the cart to behave more like
+                a real one, slightly unpredictable and harder to control, to make the gameplay more interesting.</p>
+                
+                <p>
+                After some testing, we discovered that child components in Unreal Engine 5 cannot simulate physics independently. This
+                meant we had to make a choice: keep everything inside one actor and lose realistic physics, or split the grandma and the
+                cart into two separate character blueprints. We chose the second option because the cart’s physics are an important part
+                of the experience.</p>
+
+                <p>
+                Now, when the grandma grabs the cart, a physics constraint connects the two. It acts like a joint that lets the cart
+                move and wobble naturally while still staying attached to her. Behind the scenes, we enable and disable physics at
+                specific moments, handing control between the two actors when needed. It took a lot of experimentation, but the result
+                feels natural and just chaotic enough to be fun.</p>
+            </p>
+        </div>
+    </div>
+
+    <!-- Row 2: full-width code snippet -->
+    <pre class="card" style="font-size:0.8rem; line-height:1.3; overflow:visible; max-height: none; margin-top:16px;"><code>
+void AShoppingCart::ThrowOutItems()
+{
+    float heightOffset{ 100.f };
+    float raduis{ 100.f };
+    FVector center{ m_pMesh->GetComponentLocation().X,
+                    m_pMesh->GetComponentLocation().Y,
+                    m_pMesh->GetComponentLocation().Z + heightOffset };
+
+    float angle{ 360.0 / m_Inventory->GetInventorySize() };
+
+    // thrown items in a circle
+    for (int i = 0; i < m_Inventory->GetInventorySize(); i++)
+    {
+        AItem* pItem = m_Inventory->RemoveSelectedItem();
+        if (pItem)
+        {
+            float itemAngle{ angle * static_cast<double>(i) };
+            FVector spawn{
+                raduis * static_cast<float>(UKismetMathLibrary::Cos(FMath::DegreesToRadians(itemAngle))) + center.X,
+                raduis * static_cast<float>(UKismetMathLibrary::Sin(FMath::DegreesToRadians(itemAngle))) + center.Y,
+                center.Z };
+
+            pItem->SetActorLocation(spawn,false,0,ETeleportType::ResetPhysics);
+            pItem->SetActorScale3D(FVector{1.f,1.f,1.f});
+            pItem->SetActorEnableCollision(true);
+
+            // Enable Physics
+            TArray<UStaticMeshComponent*> comps;
+            pItem->GetComponents<UStaticMeshComponent>(comps);
+            if(comps.Num() > 0)
+                comps[0]->SetSimulatePhysics(true);
+
+            SetActorEnableCollision(true);
+        }
+    }
+}
+  </code></pre>
+</section>
+
+
+<section class="case" id="feature-2">
+    <h2>Grandma - Player feedback</h2>
+
+    <!-- Row 1: image + text side by side -->
+    <div class="row">
+        <!-- Image -->
+        <div class="card" style="display:flex; flex-direction:column; gap:12px; flex:1; max-width: 300px;">
+            <figure style="margin:0;">
+                <img src="Grrrumble_Trace.png" alt="Sphere trace" style="width:100%; border-radius:12px;">
+                <figcaption>Sphere trace for closest item to the center.</figcaption>
+            </figure>
+        </div>
+
+        <!-- Text -->
+        <div class="card" style="flex:1; font-size: small;">
+            <p><strong>Time:</strong> a week</p>
+
+            <p><strong>Player feedback:</strong>
+
+        
+            <p> This game features a large number of physics-driven items scattered throughout the level, all of which can be
+            interacted with. To keep the experience accessible and family-friendly, we have to ensure that, even with so many
+            dynamic objects, the interaction system remains readable instead of confusing. </p>
+        
+            <p> Our first implementation used a straightforward ray trace. The ray originated at the grandma’s position and extended
+            forward along her facing direction. Whatever object the ray hit first was considered the active interactable. In
+            practice, this turned out to be extremely sensitive to player movement. Because players can rotate and move
+            quickly. Even small shifts in angle would cause the selection to flicker between objects. We first tried slowing down movement,
+            but the gameplay feel was not right. </p>
+        
+            <p> To address this, we replaced the ray trace with a sphere trace. Although this approach is slightly more expensive
+            computationally, the trade-off is well worth it. A sphere trace creates a volumetric query rather than a single
+            line, allowing us to collect all nearby hits and deterministically select the object closest to the center of the
+            trace. This makes the system far more stable, especially when multiple items overlap or when the player is moving
+            rapidly. </p>
+        </div>
+    </div>
+
+    <!-- Row 2: full-width code snippet -->
+    <pre class="card" style="font-size:0.8rem; line-height:1.3; overflow:visible; max-height: none; margin-top:16px;"><code>
+{
+`void AGranma::OutlineItems()
+{
+    if (!m_IsAllowedToMove) return;
+
+    // If we’re holding the cart, clear any outline and bail.
+    if (m_pCart && m_pCart->m_IsBeingHeld) { ClearOutline(); return; }
+
+    const FVector dir = GetActorRotation().Vector();
+    const FVector start = (GetActorLocation() - FVector(0,0,m_OffsetZAxis)) + dir * m_StartScale;
+    const FVector end = start + dir * m_EndScale;
+    const float r = m_EndScale * FMath::Tan(FMath::DegreesToRadians(m_TraceAngle));
+    const FCollisionShape shape = FCollisionShape::MakeSphere(r);
+
+    // Channel 3 = outlineable things
+    TArray<FHitResult> hits;
+
+    if (!GetWorld()->SweepMultiByChannel(hits, start, end, FQuat::Identity, ECC_GameTraceChannel3, shape)) 
+    {ClearOutline(); 
+    return;}
+
+    // Pick closest valid hit
+    const FHitResult* best = nullptr;
+    float bestDistSq = TNumericLimits<float>::Max();
+    
+        for (const FHitResult& h : hits) {
+            
+            if (h.GetActor() == this) continue;
+        
+            const float d2 = FVector::DistSquared(start, h.Location);
+        
+            if (d2 < bestDistSq) { bestDistSq=d2; best=&h; } } 
+        
+            ClearOutline(); 
+        
+            if (!best) return; // Apply per-player
+        
+            outline m_pOutlinedItemRef=best->GetComponent();
+        
+            if (m_pOutlinedItemRef) 
+                {m_pOutlinedItemRef->SetRenderCustomDepth(true);
+                m_pOutlinedItemRef->SetCustomDepthStencilValue(m_PlayerIdx + 1);}
+
+            // Context-specific tooltip
+            AActor* target = best->GetActor();
+            
+            if (target->IsA(AGranma::StaticClass())) 
+                {auto other = Cast<AGranma>(target);
+                if (m_IsAllowToAttack && other && other->m_CanGetHurt) SetToolTip(m_pImageBButton, "Hit");
+                else ClearOutline();}
+        
+            else if (target->IsA(AShoppingCart::StaticClass())) 
+            {
+                auto cart = Cast<AShoppingCart>(target);
+                if (m_pItemHeld) 
+                {
+                    if (cart->GetIsToppled()) SetToolTip(m_pImageTriggers, "Pick Up");
+                    else if (cart->m_Inventory->GetAmountItemsInInventory() == 6) SetToolTip(m_pImageFull, "Full");
+                    else SetToolTip(m_pImageAButton, "Place");
+                } 
+                else 
+                {
+                    if (cart->GetIsToppled()) SetToolTip(m_pImageTriggers, "Pick Up");
+                    else if (cart->m_Inventory->GetAmountItemsInInventory() == 6) SetToolTip(m_pImageAButton, "Take");
+                    else SetToolTip(m_pImageTriggers, "Grab");
+                }
+            }
+            else { SetToolTip(m_pImageAButton, m_pItemHeld ? "Swap" : "Grab");}
+    }
+
+    void AGranma::ClearOutline()
+    {
+        if (m_pOutlinedItemRef) 
+        {
+            m_pOutlinedItemRef->SetRenderCustomDepth(false);
+            m_pOutlinedItemRef = nullptr;
+            if (m_pToolTip) m_pToolTip->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }`
+}
+</code>
+</section>
+
+
+<section class="case" id="gallery">
+    <h2>Progress Gallery</h2>
+
+    <div class="gallery-wrapper">
+        <button class="gallery-arrow left" aria-label="Scroll left">‹</button>
+
+        <div class="gallery-scroll">
+            <figure class="card"><img src="Grrrumble_Prototype.gif" alt="Gallery 1">
+                <figcaption>Final look of the prototype.</figcaption>
+            </figure>
+            <figure class="card"><img src="Grrrumble_Sprint1.gif" alt="Gallery 2">
+                <figcaption>Sprint week 1 progress. Adding/removing items from the cart</figcaption>
+            </figure>
+            <figure class="card"><img src="Grrrumble_Sprint2.gif" alt="Gallery 3">
+                <figcaption>Sprint week 2 progress. Cashing in and returning with an empty cart.</figcaption>
+            </figure>
+            <figure class="card"><img src="Grrrumble_Sprint2.2.gif" alt="Gallery 4">
+                <figcaption>Sprint week 2 progress.</figcaption>
+            </figure>
+            <figure class="card"><img src="Grrrumble_Sprint3.png" alt="Gallery 5">
+                <figcaption>Sprint week 3 progress.</figcaption>
+            </figure>
+            <figure class="card"><img src="Grrrumble_Polish1.gif" alt="Gallery 6">
+                <figcaption>Polish week 1 progress.</figcaption>
+            </figure>
+            <figure class="card"><img src="Grrrumble_Polish2.gif" alt="Gallery 7">
+                <figcaption>Polish week 2 progress.</figcaption>
+            </figure>
+        </div>
+
+        <button class="gallery-arrow right" aria-label="Scroll right">›</button>
+    </div>
+</section>
+
+
+
+    </main>
+
+ <footer class="container">
+    <small>© <span id="y"></span> Myrthe Lodewyckx. Built with plain HTML/CSS. Fast by default.</small>
+</footer>
+
+<script>
+    // year
+    document.getElementById('y').textContent = new Date().getFullYear();
+    // mobile menu
+    const btn = document.querySelector('.menu-btn');
+    const mobile = document.getElementById('mobileMenu');
+    btn.addEventListener('click', () => {
+        const open = mobile.style.display === 'block';
+        mobile.style.display = open ? 'none' : 'block';
+        btn.setAttribute('aria-expanded', String(!open));
+    });
+</script>
+
+<script>
+    const scrollContainer = document.querySelector('.gallery-scroll');
+    const leftBtn = document.querySelector('.gallery-arrow.left');
+    const rightBtn = document.querySelector('.gallery-arrow.right');
+
+    leftBtn.addEventListener('click', () => {
+        scrollContainer.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+
+    rightBtn.addEventListener('click', () => {
+        scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+</script>
+
+</body>
+
+</html>
